@@ -1,65 +1,25 @@
-# About 433Utils
+# About Beaglebone Black 433Utils
 
-433Kit is a collection of code and documentation designed to assist you in the connection and usage of RF 433MHz transmit and receive modules to/with your Arduino and Rapberry Pi.
+433Kit is a collection of code and documentation designed to assist you in the connection and usage of RF 433MHz transmit and receive modules to/with your Arduino and Beaglebone Black.
 
-It consists of two main sections- Arduino sketches and Raspberry Pi command line utilities.  You'll find those in appropriately named folders.
-
-## Requirements
-
-1. An Arduino (two is ideal)
-2. A Raspberry Pi
-3. The git commandline tool, on both your Arduino IDE machine and your RPi
-4. RF 433MHz modules; a transmitter and receiver
-5. A Ninja Block and account
+It consists of two main sections- Arduino sketches and Beaglebone Black command line utilities.  You'll find those in appropriately named folders.
 
 ## Installation
+### Beaglebone Black
+- Go to RPi_utils directory.
+- Run ./build.sh to compile.
 
-### Arduino\_Sketches
+###Arduino
+Install Arduino rc_switch library (https://code.google.com/p/rc-switch/)
+Run sample skeches
 
-Place the Sketches in your normal Arduino Sketches location.  Install any required libraries:
-
-1. Servo motor library (Should be included in the Arduino IDE)
-2. _Arduino_ [rc_switch](http://code.google.com/p/rc-switch/) library
-
-### RPi\_utils
-
-From your RPi, clone this archive:
-
-1. git clone git://github.com/ninjablocks/433Utils.git
-
-2. cd 433Kit/RPi\_utils
-
-3. (As per the original rc_switch distribution) Follow the instructions to install the  [wiringpi](https://projects.drogon.net/raspberry-pi/wiringpi/download-and-install/) library.
-After that you can compile the example programs by executing *make*. 
-
-## Usage
-
-### send 
-```sudo ./send systemCode unitCode command```
-
-This command is unaltered from the original rc\_switch distribution.
+## BBB Usage
+- Run ./send [data] [pin name]
+where [data] is a numberto send and [pin name] is a BBB pin name (http://elinux.org/images/2/2f/8_PWMs_and_4_Timers.PNG)
 
 
-### codesend 
-```sudo ./codesend decimalcode```
-
-This command uses a single Ninja Blocks compatible decimal code.  Sniff out codes using the RF\_Sniffer.ino Arduino sketch, included in this distribution.
-
-You can use codesend to control the wireless servo on your Arduino.
-(The sketch is Servo\_Receive\_Demo.ino)
-
-I've implemented the most bare-bones of controls here.  Try:
-
-```sudo ./codesend 500000 # to move the servo up```
-
-```sudo ./codesend 500001 # to move the servo down```
-
-```sudo ./codesend 500002 # to move the servo left```
-
-```sudo ./codesend 500003 # to move the servo right```
-
-```sudo ./codesend 500004 # to move the servo home```
 
 ## Issues
-
-Due to limitiations in the implementation of interrupt-driven routines in the underlying RCSwitch library, it is currently not possible to use both the send and receive functionality within the one program.  
+- Please make sure to adjust receiver and transmitter correctly (setReceiveTolerance() on receiver should be around 50-300 most of the time)
+- Currently only transmitter mode is supported for BBB.
+- Due to limitiations in the implementation of interrupt-driven routines in the underlying RCSwitch library, it is currently not possible to use both the send and receive functionality within the one program.  
