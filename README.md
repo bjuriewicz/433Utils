@@ -15,7 +15,7 @@ Run sample skeches
 
 ## BBB Usage
 - Run ./send [data] [pin name]
-where [data] is a numberto send and [pin name] is a BBB pin name (http://elinux.org/images/2/2f/8_PWMs_and_4_Timers.PNG)
+where [data] is decimal number and [pin name] is a BBB pin name (http://elinux.org/images/2/2f/8_PWMs_and_4_Timers.PNG)
 
 
 
