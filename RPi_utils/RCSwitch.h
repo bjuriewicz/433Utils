@@ -28,8 +28,12 @@
 #if defined(ARDUINO) && ARDUINO >= 100
     #include "Arduino.h"
 #else
-    #include <wiringPi.h>
+    
+    
     #include <stdint.h>
+    #include <unistd.h>
+
+  #include <string>
     #define NULL 0
     #define CHANGE 1
 #ifdef __cplusplus
@@ -54,7 +58,7 @@ typedef uint8_t byte;
 class RCSwitch {
 
   public:
-    RCSwitch();
+    RCSwitch(char* pinName);
     
     void switchOn(int nGroupNumber, int nSwitchNumber);
     void switchOff(int nGroupNumber, int nSwitchNumber);
@@ -67,8 +71,8 @@ class RCSwitch {
     void send(unsigned long Code, unsigned int length);
     void send(char* Code);
     
-    void enableReceive(int interrupt);
-    void enableReceive();
+    //void enableReceive(int interrupt);
+    //void enableReceive();
     void disableReceive();
     bool available();
 	void resetAvailable();
@@ -79,8 +83,10 @@ class RCSwitch {
 	unsigned int getReceivedProtocol();
     unsigned int* getReceivedRawdata();
   
-    void enableTransmit(int nTransmitterPin);
-    void disableTransmit();
+    //void enableTransmit(int nTransmitterPin);
+    //void disableTransmit();
+    void DigitalWriteHigh(int pin);
+    void DigitalWriteLow(int pin);
     void setPulseLength(int nPulseLength);
     void setRepeatTransmit(int nRepeatTransmit);
     void setReceiveTolerance(int nPercent);
@@ -101,11 +107,11 @@ class RCSwitch {
 
     static char* dec2binWzerofill(unsigned long dec, unsigned int length);
     
-    static void handleInterrupt();
+    //static void handleInterrupt();
 	static bool receiveProtocol1(unsigned int changeCount);
 	static bool receiveProtocol2(unsigned int changeCount);
     int nReceiverInterrupt;
-    int nTransmitterPin;
+    char* nTransmitterPin;
     int nPulseLength;
     int nRepeatTransmit;
 	char nProtocol;

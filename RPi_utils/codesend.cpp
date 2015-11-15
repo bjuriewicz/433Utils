@@ -25,14 +25,12 @@ int main(int argc, char *argv[]) {
     
     // Parse the firt parameter to this command as an integer
     int code = atoi(argv[1]);
+    char* outputPin = argv[2];
     
-    if (wiringPiSetup () == -1) return 1;
 	printf("sending code[%i]\n", code);
-	RCSwitch mySwitch = RCSwitch();
-	mySwitch.enableTransmit(PIN);
-    
+	RCSwitch mySwitch = RCSwitch(outputPin);
+  printf("rcswitch initialized\n");
     mySwitch.send(code, 24);
-    
 	return 0;
 
 }

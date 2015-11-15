@@ -6,6 +6,7 @@
   - Andre Koehler / info(at)tomate-online(dot)de
   - Gordeev Andrey Vladimirovich / gordeev(at)openpyro(dot)com
   - Skineffect / http://forum.ardumote.com/viewtopic.php?f=2&t=48
+  - Bartosz Juriewicz / bartosz.juriewicz(at)hotmail(dot)com
   
   Project home: http://code.google.com/p/rc-switch/
 
@@ -25,22 +26,35 @@
 */
 
 #include "RCSwitch.h"
+#include "GPIOManager.h"
+#include "GPIOConst.h"
+#include <stdio.h>
+
 
 unsigned long RCSwitch::nReceivedValue = NULL;
 unsigned int RCSwitch::nReceivedBitlength = 0;
 unsigned int RCSwitch::nReceivedDelay = 0;
 unsigned int RCSwitch::nReceivedProtocol = 0;
 unsigned int RCSwitch::timings[RCSWITCH_MAX_CHANGES];
+unsigned int signalPin = 0;
+GPIO::GPIOManager* gp;
+
+
 int RCSwitch::nReceiveTolerance = 60;
 
-RCSwitch::RCSwitch() {
+RCSwitch::RCSwitch(char* pinName) {
   this->nReceiverInterrupt = -1;
-  this->nTransmitterPin = -1;
   RCSwitch::nReceivedValue = NULL;
   this->setPulseLength(350);
-  this->setRepeatTransmit(10);
+  this->setRepeatTransmit(20);
   this->setReceiveTolerance(60);
   this->setProtocol(1);
+
+  gp = GPIO::GPIOManager::getInstance();
+  signalPin = GPIO::GPIOConst::getInstance()->getGpioByName(pinName);
+  gp->exportPin(signalPin);
+  gp->setDirection(signalPin, GPIO::OUTPUT);
+
 }
 
 /**
@@ -89,24 +103,6 @@ void RCSwitch::setRepeatTransmit(int nRepeatTransmit) {
  */
 void RCSwitch::setReceiveTolerance(int nPercent) {
   RCSwitch::nReceiveTolerance = nPercent;
-}
-  
-
-/**
- * Enable transmissions
- *
- * @param nTransmitterPin    Arduino Pin to which the sender is connected to
- */
-void RCSwitch::enableTransmit(int nTransmitterPin) {
-  this->nTransmitterPin = nTransmitterPin;
-  pinMode(this->nTransmitterPin, OUTPUT);
-}
-
-/**
-  * Disable transmissions
-  */
-void RCSwitch::disableTransmit() {
-  this->nTransmitterPin = -1;
 }
 
 /**
@@ -337,22 +333,23 @@ void RCSwitch::send(char* sCodeWord) {
 }
 
 void RCSwitch::transmit(int nHighPulses, int nLowPulses) {
-    boolean disabled_Receive = false;
-    int nReceiverInterrupt_backup = nReceiverInterrupt;
-    if (this->nTransmitterPin != -1) {
-        if (this->nReceiverInterrupt != -1) {
-            this->disableReceive();
-            disabled_Receive = true;
-        }
-        digitalWrite(this->nTransmitterPin, HIGH);
-        delayMicroseconds( this->nPulseLength * nHighPulses);
-        digitalWrite(this->nTransmitterPin, LOW);
-        delayMicroseconds( this->nPulseLength * nLowPulses);
-        if(disabled_Receive){
-            this->enableReceive(nReceiverInterrupt_backup);
-        }
-    }
+
+    this->DigitalWriteHigh(signalPin);
+    usleep( this->nPulseLength * nHighPulses);
+    this->DigitalWriteLow(signalPin);
+    usleep( this->nPulseLength * nLowPulses);
+       
 }
+
+
+void RCSwitch::DigitalWriteLow(int pin) {
+     gp->setValue(pin, GPIO::LOW);
+}
+void RCSwitch::DigitalWriteHigh(int pin) {
+     gp->setValue(pin, GPIO::HIGH);
+}
+
+
 /**
  * Sends a "0" Bit
  *                       _    
@@ -433,9 +430,7 @@ void RCSwitch::sendSync() {
 	}
 }
 
-/**
- * Enable receiving data
- */
+/*
 void RCSwitch::enableReceive(int interrupt) {
   this->nReceiverInterrupt = interrupt;
   this->enableReceive();
@@ -448,6 +443,7 @@ void RCSwitch::enableReceive() {
     wiringPiISR(this->nReceiverInterrupt, INT_EDGE_BOTH, &handleInterrupt);
   }
 }
+*/
 
 /**
  * Disable receiving data
@@ -557,7 +553,7 @@ bool RCSwitch::receiveProtocol2(unsigned int changeCount){
 	}
 
 }
-
+/*
 void RCSwitch::handleInterrupt() {
 
   static unsigned int duration;
@@ -592,6 +588,7 @@ void RCSwitch::handleInterrupt() {
   RCSwitch::timings[changeCount++] = duration;
   lastTime = time;  
 }
+*/
 
 /**
   * Turns a decimal value to its binary representation
